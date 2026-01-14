@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Link to QR Code Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: #888888;
+      font-size: 1.05rem;
+      font-weight: 400;
+      line-height: 1.5;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #111111;
+      border: 1px solid #1f1f1f;
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.75rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      color: #cccccc;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.01em;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555555;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+
+    input[type="url"] {
+      width: 100%;
+      height: 56px;
+      padding: 0 1.25rem 0 3.25rem;
+      background-color: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="url"]::placeholder {
+      color: #555555;
+    }
+
+    input[type="url"]:focus {
+      border-color: #444444;
+      background-color: #0f0f0f;
+    }
+
+    input[type="url"]:hover {
+      border-color: #333333;
+    }
+
+    /* Removed all .logo-display, .logo-preview, and .logo-info styles */
+
+    .generate-btn {
+      width: 100%;
+      padding: 1.125rem 2rem;
+      background: #ffffff;
+      border: none;
+      border-radius: 12px;
+      color: #0a0a0a;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .generate-btn:hover {
+      background: #eeeeee;
+      transform: translateY(-1px);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .qr-display {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .qr-display.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .qr-card {
+      background: #111111;
+      border: 1px solid #1f1f1f;
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    .qr-wrapper {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: inline-block;
+    }
+
+    #qrcode {
+      display: none;
+    }
+
+    #qrCanvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      background-color: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+      background-color: #222222;
+      border-color: #333333;
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .info-text {
+      color: #555555;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 2.25rem;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+      }
+
+      .card, .qr-card {
+        padding: 1.75rem;
+      }
+
+      /* Removed mobile styles for logo display */
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Link to QR Code</h1>
+      <p class="subtitle">Convert any URL into a scannable QR code with Pune Start-Up Fest'26 branding</p>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label for="urlInput">Enter URL</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <input type="url" id="urlInput" placeholder="https://example.com" />
+        </div>
+      </div>
+
+      <!-- Removed entire "Brand Logo" section with logo display -->
+
+      <button class="generate-btn" id="generateBtn" onclick="generateQR()">
+        Generate QR Code
+      </button>
+    </div>
+
+    <div class="qr-display" id="qrDisplay">
+      <div class="qr-card">
+        <div class="qr-wrapper">
+          <div id="qrcode"></div>
+          <canvas id="qrCanvas"></canvas>
+        </div>
+
+        <div class="button-group">
+          <button class="action-btn" onclick="downloadQR()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download PNG
+          </button>
+          <button class="action-btn" onclick="copyToClipboard()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Image
+          </button>
+        </div>
+
+        <p class="info-text">High error correction (Level H) with centered branding logo</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let qrInstance = null;
+    let logoImg = null;
+    let currentUrl = '';
+
+    function loadLogo() {
+      const img = new Image();
+      
+      img.onload = function() {
+        logoImg = img;
+      };
+      img.onerror = function() {
+        console.error('Failed to load Pune Start-Up Fest logo');
+      };
+      img.src = 'https://firebasestorage.googleapis.com/v0/b/psf26-c51e6.firebasestorage.app/o/logo%2Fpsf-logo-26.jpeg?alt=media';
+    }
+
+    loadLogo();
+
+    function generateQR() {
+      const url = document.getElementById('urlInput').value.trim();
+      
+      if (!url) {
+        alert('Please enter a URL');
+        return;
+      }
+
+      if (!logoImg) {
+        alert('Logo is still loading, please try again in a moment');
+        return;
+      }
+
+      currentUrl = url;
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+
+      qrInstance = new QRCode(qrContainer, {
+        text: url,
+        width: 500,
+        height: 500,
+        correctLevel: QRCode.CorrectLevel.H,
+        colorDark: '#000000',
+        colorLight: '#ffffff'
+      });
+
+      setTimeout(() => {
+        const qrImg = qrContainer.querySelector('img');
+        if (qrImg) {
+          overlayLogoOnCanvas(qrImg);
+          document.getElementById('qrDisplay').classList.add('visible');
+        }
+      }, 100);
+    }
+
+    function overlayLogoOnCanvas(qrImg) {
+      const canvas = document.getElementById('qrCanvas');
+      const ctx = canvas.getContext('2d');
+      const size = 500;
+      
+      canvas.width = size;
+      canvas.height = size;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
+      
+      ctx.drawImage(qrImg, 0, 0, size, size);
+
+      const logoSize = Math.floor(size * 0.22);
+      const padding = Math.floor(logoSize * 0.15);
+      const startX = (size - logoSize) / 2;
+      const startY = (size - logoSize) / 2;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(startX - padding, startY - padding, logoSize + padding * 2, logoSize + padding * 2, 8);
+      ctx.fill();
+
+      ctx.drawImage(logoImg, startX, startY, logoSize, logoSize);
+    }
+
+    function downloadQR() {
+      const canvas = document.getElementById('qrCanvas');
+      if (canvas.width === 0) {
+        alert('Please generate a QR code first');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'qr-code-pune-startup-fest.png';
+      link.click();
+    }
+
+    function copyToClipboard() {
+      const canvas = document.getElementById('qrCanvas');
+      if (canvas.width === 0) {
+        alert('Please generate a QR code first');
+        return;
+      }
+
+      canvas.toBlob((blob) => {
+        if (navigator.clipboard && navigator.clipboard.write) {
+          navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]).then(() => {
+            alert('QR code copied to clipboard!');
+          }).catch(() => {
+            alert('Failed to copy to clipboard');
+          });
+        } else {
+          alert('Clipboard API not supported in this browser');
+        }
+      });
+    }
+
+    document.getElementById('urlInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        generateQR();
+      }
+    });
+  </script>
+</body>
+</html>
